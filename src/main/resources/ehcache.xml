@@ -19,7 +19,7 @@
             <ttl unit="days">1</ttl>
         </expiry>
         <resources>
-            <offheap unit="MB">50</offheap>
+            <offheap unit="MB">20</offheap>
         </resources>
     </cache>
 
@@ -37,7 +37,7 @@
             <ttl unit="days">1</ttl>
         </expiry>
         <resources>
-            <offheap unit="MB">200</offheap>
+            <offheap unit="MB">20</offheap>
         </resources>
     </cache>
 
@@ -46,7 +46,7 @@
             <ttl unit="days">1</ttl>
         </expiry>
         <resources>
-            <offheap unit="MB">200</offheap>
+            <offheap unit="MB">20</offheap>
         </resources>
     </cache>
 
@@ -55,7 +55,7 @@
             <ttl unit="days">5</ttl>
         </expiry>
         <resources>
-            <offheap unit="MB">50</offheap>
+            <offheap unit="MB">15</offheap>
         </resources>
     </cache>
 
@@ -64,7 +64,7 @@
             <ttl unit="days">5</ttl>
         </expiry>
         <resources>
-            <offheap unit="MB">50</offheap>
+            <offheap unit="MB">15</offheap>
         </resources>
     </cache>
 
