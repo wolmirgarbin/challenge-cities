@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import javax.cache.CacheManager;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
@@ -24,11 +25,15 @@ public class CityControllerTest extends ChallengeApplicationTests {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private CacheManager cacheManager;
+
     @MockBean
     private PlaceConsume placeConsume;
 
     @Before
     public void up() {
+        cacheManager.getCacheNames().forEach(cacheName -> cacheManager.getCache(cacheName).clear());
         when(placeConsume.findAllStates()).thenReturn(List.of(getState(1, "Santa Catarina", "SC"), getState(2,"Rio Grande do Sul", "RS")));
         when(placeConsume.findAllCitiesByState(eq("1"))).thenReturn(List.of(getCity(1,"Blumenau"), getCity(2, "Florianópolis"), getCity(3, "São Domingos"), getCity(4, "Coronel Martins")));
         when(placeConsume.findAllCitiesByState(eq("1|2"))).thenReturn(List.of(getCity(1, "Blumenau"), getCity(2, "Florianópolis"), getCity(3, "São Domingos"), getCity(4, "Coronel Martins")));

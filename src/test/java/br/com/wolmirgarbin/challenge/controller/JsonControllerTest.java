@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import javax.cache.CacheManager;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
@@ -30,19 +31,23 @@ public class JsonControllerTest extends ChallengeApplicationTests {
 
     private static final String EXPECTED_SOURCE = "[" +
             "{\"id\":1,\"nome\":\"Blumenau\",\"microrregiao\":{\"id\":1,\"nome\":\"MicroRegião\",\"mesorregiao\":{\"id\":1,\"nome\":\"MesoRegião\",\"UF\":{\"id\":1,\"sigla\":\"SC\",\"nome\":\"Santa Catarina\",\"regiao\":{\"id\":1,\"sigla\":\"RG\",\"nome\":\"Região\"}}}}}," +
-            "{\"id\":1,\"nome\":\"Florianópolis\",\"microrregiao\":{\"id\":1,\"nome\":\"MicroRegião\",\"mesorregiao\":{\"id\":1,\"nome\":\"MesoRegião\",\"UF\":{\"id\":1,\"sigla\":\"SC\",\"nome\":\"Santa Catarina\",\"regiao\":{\"id\":1,\"sigla\":\"RG\",\"nome\":\"Região\"}}}}}" +
-            ",{\"id\":1,\"nome\":\"São Domingos\",\"microrregiao\":{\"id\":1,\"nome\":\"MicroRegião\",\"mesorregiao\":{\"id\":1,\"nome\":\"MesoRegião\",\"UF\":{\"id\":1,\"sigla\":\"SC\",\"nome\":\"Santa Catarina\",\"regiao\":{\"id\":1,\"sigla\":\"RG\",\"nome\":\"Região\"}}}}}," +
+            "{\"id\":1,\"nome\":\"Florianópolis\",\"microrregiao\":{\"id\":1,\"nome\":\"MicroRegião\",\"mesorregiao\":{\"id\":1,\"nome\":\"MesoRegião\",\"UF\":{\"id\":1,\"sigla\":\"SC\",\"nome\":\"Santa Catarina\",\"regiao\":{\"id\":1,\"sigla\":\"RG\",\"nome\":\"Região\"}}}}}," +
+            "{\"id\":1,\"nome\":\"São Domingos\",\"microrregiao\":{\"id\":1,\"nome\":\"MicroRegião\",\"mesorregiao\":{\"id\":1,\"nome\":\"MesoRegião\",\"UF\":{\"id\":1,\"sigla\":\"SC\",\"nome\":\"Santa Catarina\",\"regiao\":{\"id\":1,\"sigla\":\"RG\",\"nome\":\"Região\"}}}}}," +
             "{\"id\":1,\"nome\":\"Coronel Martins\",\"microrregiao\":{\"id\":1,\"nome\":\"MicroRegião\",\"mesorregiao\":{\"id\":1,\"nome\":\"MesoRegião\",\"UF\":{\"id\":1,\"sigla\":\"SC\",\"nome\":\"Santa Catarina\",\"regiao\":{\"id\":1,\"sigla\":\"RG\",\"nome\":\"Região\"}}}}}" +
             "]";
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private CacheManager cacheManager;
+
     @MockBean
     private PlaceConsume placeConsume;
 
     @Before
     public void up() {
+        cacheManager.getCacheNames().forEach(cacheName -> cacheManager.getCache(cacheName).clear());
         when(placeConsume.findAllStates()).thenReturn(List.of(getState(1, "Santa Catarina", "SC"), getState(2,"Rio Grande do Sul", "RS")));
         when(placeConsume.findAllCitiesByState(eq("1"))).thenReturn(List.of(getCity("Blumenau"), getCity("Florianópolis")));
         when(placeConsume.findAllCitiesByState(eq("1|2"))).thenReturn(List.of(getCity("Blumenau"), getCity("Florianópolis"), getCity("São Domingos"), getCity("Coronel Martins")));
@@ -55,7 +60,7 @@ public class JsonControllerTest extends ChallengeApplicationTests {
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string(EXPECTED_FORMATTED));
+                .andExpect(content().json(EXPECTED_FORMATTED));
     }
 
     @Test
@@ -65,7 +70,7 @@ public class JsonControllerTest extends ChallengeApplicationTests {
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string(EXPECTED_SOURCE));
+                .andExpect(content().json(EXPECTED_SOURCE));
     }
 
     private State getState(int id, String name, String acronym) {

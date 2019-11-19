@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,16 +35,21 @@ public class ExportController {
     @ApiOperation(value = "Permite exportar os dados para JSON ou CSV")
     @GetMapping("{type}")
     public void exportToFormat(@PathVariable("type") String type, HttpServletResponse response) throws ExportException {
-        List<Place> placeList = placeService.findAllCities().stream().map(Place::adapter).collect(Collectors.toList());
+        ExportType exportType = ExportType.getValueOrThrow(type.toUpperCase());
 
-        ExportType exportType = ExportType.valueOf(type.toUpperCase());
+        List<Place> placeList = placeService.findAllCities().stream()
+                .map(Place::adapter)
+                .sorted(Comparator.comparing(Place::getNomeCidade))
+                .collect(Collectors.toUnmodifiableList());
+
         response.setCharacterEncoding("UTF-8");
         response.setContentType(exportType.getContentType());
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"file." + exportType.name().toLowerCase() + "\"");
         try {
-            ExportFactory.get(exportType).export(placeList, response.getWriter());
+            ExportFactory.get(exportType).export(new LinkedList<>(placeList), response.getWriter());
         } catch (IOException e) {
             LOGGER.error("Error exporting data.", e);
+            throw new ExportException(e.getMessage());
         }
     }
 }

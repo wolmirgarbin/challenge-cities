@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import javax.cache.CacheManager;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,11 +22,15 @@ public class PlaceServiceTest extends ChallengeApplicationTests {
     @Autowired
     private PlaceService placeService;
 
+    @Autowired
+    private CacheManager cacheManager;
+
     @MockBean
     private PlaceConsume placeConsume;
 
     @Before
     public void up() {
+        cacheManager.getCacheNames().forEach(cacheName -> cacheManager.getCache(cacheName).clear());
         when(placeConsume.findAllStates()).thenReturn(List.of(getState(1, "Santa Catarina", "SC"), getState(2,"Rio Grande do Sul", "RS")));
         when(placeConsume.findAllCitiesByState(eq("1"))).thenReturn(List.of(getCity("Blumenau"), getCity("Florianópolis")));
         when(placeConsume.findAllCitiesByState(eq("1|2"))).thenReturn(List.of(getCity("Blumenau"), getCity("Florianópolis"), getCity("São Domingos"), getCity("Coronel Martins")));
