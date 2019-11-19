@@ -7,7 +7,7 @@ public enum ExportType {
     CSV("text/csv"), JSON("application/json");
 
     @Getter
-    private String contentType;
+    private final String contentType;
 
     ExportType(String contentType) {
         this.contentType = contentType;
